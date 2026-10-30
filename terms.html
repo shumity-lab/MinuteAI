@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用規約 — MinuteAI</title>
+  <meta name="theme-color" content="#07070b">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icon_32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/icon_64.png">
+  <link rel="apple-touch-icon" href="assets/icon_256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', '"Hiragino Sans"', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
+      } } },
+    };
+  </script>
+  <style>
+    :root { color-scheme: dark; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { background: #07070b; }
+    ::selection { background: rgba(129, 140, 248, .35); color: #fff; }
+    .glow { position: absolute; border-radius: 9999px; filter: blur(110px); pointer-events: none; }
+    .text-gradient {
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,.72) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+    }
+    a:focus-visible, button:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
+    /* Only the selected language's text is shown */
+    html[lang="ja"] [lang="en"]:not(html), html[lang="en"] [lang="ja"]:not(html) { display: none; }
+
+    /* Legal text */
+    .legal { color: #a1a1aa; font-size: 15px; line-height: 1.85; }
+    .legal h2 { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.06); color: #fff; font-size: 1.125rem; font-weight: 600; letter-spacing: -.01em; }
+    .legal h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+    .legal h3 { margin-top: 1.25rem; color: #e4e4e7; font-weight: 600; }
+    .legal p { margin-top: .75rem; }
+    .legal ul, .legal ol { margin-top: .75rem; padding-left: 1.4rem; }
+    .legal ul { list-style: disc; }
+    .legal ol { list-style: decimal; }
+    .legal li { margin-top: .4rem; }
+    .legal li::marker { color: #6366f1; }
+    .legal strong { color: #e4e4e7; font-weight: 600; }
+    .legal a { color: #a5b4fc; text-decoration: underline; text-underline-offset: 3px; }
+    .legal a:hover { color: #c7d2fe; }
+    .legal code { border-radius: 6px; background: rgba(255,255,255,.06); padding: 1px 6px; font-size: .85em; color: #d4d4d8; }
+  </style>
+</head>
+
+<body class="font-sans text-zinc-300 antialiased overflow-x-hidden">
+  <header class="sticky top-0 z-50">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <nav class="mt-3 flex h-14 items-center justify-between rounded-2xl glass px-3 sm:px-4">
+        <a href="index.html" class="flex items-center gap-2.5">
+          <img src="assets/icon_64.png" alt="" width="28" height="28" class="h-7 w-7">
+          <span class="text-[15px] font-semibold tracking-tight text-white">MinuteAI</span>
+        </a>
+        <div class="flex items-center gap-1.5 sm:gap-3">
+          <a href="index.html" class="hidden sm:inline-block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors"><span lang="ja">ホームに戻る</span><span lang="en">Back to home</span></a>
+          <div class="flex items-center rounded-full border border-white/10 bg-white/[.03] p-0.5 text-xs" role="group" aria-label="言語 / Language">
+            <button type="button" data-lang-btn="ja" aria-label="日本語" class="rounded-full px-2.5 py-1 transition-colors"><span aria-hidden="true">🇯🇵</span><span class="hidden sm:inline ml-1">日本語</span></button>
+            <button type="button" data-lang-btn="en" aria-label="English" class="rounded-full px-2.5 py-1 transition-colors"><span aria-hidden="true">🇺🇸</span><span class="hidden sm:inline ml-1">English</span></button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="relative">
+    <div class="glow w-[640px] h-[360px] -top-24 left-1/2 -translate-x-1/2 bg-indigo-600/25"></div>
+    <div class="relative mx-auto max-w-3xl px-4 sm:px-6 pt-16 sm:pt-24 pb-24">
+      <p class="text-xs font-semibold uppercase tracking-[.2em] text-indigo-300">Legal</p>
+      <h1 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient"><span lang="ja">利用規約</span><span lang="en">Terms of Service</span></h1>
+      <p class="mt-4 text-sm text-zinc-400"><span lang="ja">制定日: 2026年10月28日</span><span lang="en">Effective date: October 28, 2026</span></p>
+
+      <article class="legal mt-10 rounded-3xl glass p-6 sm:p-10">
+        <div lang="ja">
+          <p>この利用規約（以下「本規約」）は、Shumity Lab（以下「当方」）が提供する macOS 用アプリ「MinuteAI」（以下「本アプリ」）の利用条件を定めるものです。本アプリをダウンロード、インストールまたは利用した時点で、利用者は本規約に同意したものとみなします。</p>
+
+          <h2>第1条（定義）</h2>
+          <ul>
+            <li>「無料プラン」とは、料金の支払いなしに利用できる本アプリの利用形態をいいます。</li>
+            <li>「Pro プラン」とは、月払いまたは年払いの料金を支払うことで、無料プランの制限なく本アプリを利用できるサブスクリプションをいいます。</li>
+            <li>「ライセンスキー」とは、Pro プランの購入時に発行される、Pro プランを有効にするためのキーをいいます。</li>
+          </ul>
+
+          <h2>第2条（使用許諾）</h2>
+          <ol>
+            <li>当方は、利用者に対し、本規約に従って本アプリを利用者自身の Mac で使用する、非独占的かつ譲渡不能な権利を許諾します。</li>
+            <li>無料プランでは、1回の録音は最大15分までです。また、保存済みの会議が2件以上あるときは新しい会議を作成できません（会議を削除して1件以下にすれば作成できます）。既存の会議が削除されることはありません。</li>
+            <li>Pro プランでは、上記の制限なく本アプリを利用できます。1つのライセンスキーで認証できる Mac は最大2台です。</li>
+            <li>本アプリの利用には、Apple Silicon を搭載した Mac と macOS 15 以降が必要です。</li>
+          </ol>
+
+          <h2>第3条（Pro プランの料金と支払い）</h2>
+          <ol>
+            <li>Pro プランの販売と決済は、Lemon Squeezy（Lemon Squeezy, LLC）が販売事業者（Merchant of Record）として行います。支払いには、本規約に加えて Lemon Squeezy の利用条件が適用されます。</li>
+            <li>料金は本サイトおよび購入画面に表示する金額（米ドル）とします。お住まいの地域によって、消費税などの税金が加算される場合があります。</li>
+            <li>Pro プランは、利用者が解約しない限り、選択した期間（1か月または1年）ごとに自動で更新され、更新時に料金が請求されます。</li>
+            <li>当方は料金を変更することがあります。変更後の料金は、事前に通知したうえで、変更後に始まる更新期間から適用します。</li>
+          </ol>
+
+          <h2>第4条（解約と返金）</h2>
+          <ol>
+            <li>利用者は、Lemon Squeezy から届く購入時のメールのリンク、または Lemon Squeezy のカスタマーポータルから、いつでも Pro プランを解約できます。</li>
+            <li>解約した場合も、支払い済みの期間が終わるまでは Pro プランを利用できます。期間の終了後、本アプリが期限切れを確認してから3日間は Pro プランのまま利用でき、その後は無料プランになります。無料プランになっても録音済みの会議は削除されず、引き続き閲覧・書き出しできますが、前条の無料プランの制限が適用されます。</li>
+            <li>返金や支払いの取り消しなどによりライセンスが無効になった場合は、本アプリが無効を確認した時点で無料プランになります。</li>
+            <li>返金は、Lemon Squeezy の返金ポリシーおよび適用される法令に従います。返金をご希望の場合は、Lemon Squeezy または当方のお問い合わせ先までご連絡ください。</li>
+          </ol>
+
+          <h2>第5条（禁止事項）</h2>
+          <p>利用者は、本アプリの利用にあたり、次の行為をしてはなりません。</p>
+          <ul>
+            <li>法令または公序良俗に違反する行為</li>
+            <li>会議の参加者などの同意を得ずに録音するなど、他人の権利（プライバシー権、肖像権、著作権などを含みます）を侵害する行為</li>
+            <li>本アプリの複製、改変、再配布、貸与、販売、またはリバースエンジニアリング、逆コンパイル、逆アセンブル（法令で認められる範囲を除きます）</li>
+            <li>ライセンスの仕組みを回避する行為、ライセンスキーを第三者と共有する行為、または不正に取得したライセンスキーを使用する行為</li>
+            <li>その他、当方が不適切と合理的に判断する行為</li>
+          </ul>
+
+          <h2>第6条（録音に関する利用者の責任）</h2>
+          <p>本アプリによる録音と文字起こしは、利用者自身の責任で行うものとします。会議の録音にあたっては、参加者への事前の告知や同意の取得など、適用される法令と所属組織のルールを守ってください。</p>
+
+          <h2>第7条（AI による処理結果）</h2>
+          <p>本アプリの文字起こし、要約、章立てなどは AI モデルによって自動で生成されるため、誤りや欠落が含まれる場合があります。重要な内容は、利用者ご自身で必ず確認してください。当方は、処理結果の正確性、完全性、有用性を保証しません。</p>
+
+          <h2>第8条（データの管理）</h2>
+          <p>本アプリで作成したデータは利用者の Mac 内にのみ保存され、当方は保管していません。データのバックアップと管理は利用者ご自身で行ってください。データの消失や破損についての当方の責任は、第12条に定めるとおりとします。</p>
+
+          <h2>第9条（第三者のソフトウェアとモデル）</h2>
+          <p>本アプリは、オープンソースソフトウェアと、Hugging Face などで公開されている第三者の AI モデルを利用します。これらには、それぞれのライセンス条件が適用されます。</p>
+
+          <h2>第10条（知的財産権）</h2>
+          <p>本アプリと本サイトに関する著作権その他の知的財産権は、当方または正当な権利者に帰属します。本規約による使用許諾は、これらの権利を利用者に譲渡するものではありません。</p>
+
+          <h2>第11条（保証の否認）</h2>
+          <p>当方は、本アプリに不具合がないこと、特定の目的に適合すること、すべての Mac や会議アプリで動作することを保証しません。ただし、この条項は、法令により当方が負うべき責任（消費者である利用者に対する契約不適合責任を含みます）を免除するものではなく、当方の責任は第12条に定めるとおりとします。</p>
+
+          <h2>第12条（責任の制限）</h2>
+          <ol>
+            <li>当方の債務不履行または不法行為により利用者に損害が生じた場合、当方は、当方の軽過失によるときは、利用者に現実に生じた直接かつ通常の損害に限り、損害の発生前12か月間に利用者が本アプリについて支払った料金の総額を上限として、賠償責任を負います。</li>
+            <li>前項の制限は、当方に故意または重過失がある場合、および消費者契約法その他の法令によりこの制限が認められない場合には適用しません。</li>
+          </ol>
+
+          <h2>第13条（本アプリの変更・提供の終了）</h2>
+          <p>当方は、本アプリの内容を変更し、または本アプリの提供を終了することがあります。Pro プランの提供を終了する場合は、相当の期間をおいて事前に通知します。</p>
+
+          <h2>第14条（本規約の変更）</h2>
+          <p>当方は、変更が利用者の一般の利益に適合する場合、または変更が契約の目的に反せず、変更の必要性、変更後の内容の相当性その他の事情に照らして合理的な場合に、本規約を変更することがあります。変更する場合は、変更後の内容と効力発生日を、効力発生日の相当期間前までに本サイトに掲載して周知します。</p>
+
+          <h2>第15条（準拠法と管轄）</h2>
+          <p>本規約は日本法に準拠し、日本法に従って解釈されます。本アプリまたは本規約に関して紛争が生じた場合は、東京地方裁判所を第一審の合意管轄裁判所とします。ただし、消費者である利用者について、その居住地の法令で適用される強行規定や、居住地の裁判所に訴えを提起する権利を妨げるものではありません。</p>
+
+          <h2>第16条（お問い合わせ）</h2>
+          <p>Shumity Lab<br>メール: <a href="mailto:shumity.lab@gmail.com">shumity.lab@gmail.com</a></p>
+        </div>
+        <div lang="en">
+          <p class="!mt-0 mb-8 rounded-xl border border-white/[.08] bg-white/[.03] px-4 py-3 text-sm">This is an English translation. If there is any difference between the Japanese and English versions, the Japanese version prevails.</p>
+          <p>These Terms of Service (the "Terms") set out the conditions for using the macOS app MinuteAI (the "App") provided by Shumity Lab ("we", "us"). By downloading, installing or using the App, you agree to these Terms.</p>
+
+          <h2>Article 1 (Definitions)</h2>
+          <ul>
+            <li>The "Free plan" means use of the App without payment.</li>
+            <li>The "Pro plan" means a subscription, billed monthly or yearly, that lets you use the App without the Free plan's limits.</li>
+            <li>A "license key" means the key issued when you buy the Pro plan, used to activate it.</li>
+          </ul>
+
+          <h2>Article 2 (License)</h2>
+          <ol>
+            <li>Subject to these Terms, we grant you a non-exclusive, non-transferable right to use the App on your own Mac.</li>
+            <li>On the Free plan, each recording is limited to 15 minutes, and you cannot create a new meeting while 2 or more meetings are saved (you can once you delete down to 1). Existing meetings are never deleted.</li>
+            <li>On the Pro plan, these limits do not apply. Each license key can be activated on up to 2 Macs.</li>
+            <li>The App requires a Mac with Apple Silicon running macOS 15 or later.</li>
+          </ol>
+
+          <h2>Article 3 (Pro plan fees and payment)</h2>
+          <ol>
+            <li>Sales and payments for the Pro plan are handled by Lemon Squeezy (Lemon Squeezy, LLC) as the Merchant of Record. Lemon Squeezy's terms also apply to your payment.</li>
+            <li>Prices are as shown on the Site and at checkout, in US dollars. Taxes such as VAT or sales tax may be added depending on where you live.</li>
+            <li>The Pro plan renews automatically at the end of each period you chose (one month or one year) and is charged at renewal, unless you cancel.</li>
+            <li>We may change prices. We will notify you in advance, and new prices apply from the next renewal period that starts after the change.</li>
+          </ol>
+
+          <h2>Article 4 (Cancellation and refunds)</h2>
+          <ol>
+            <li>You can cancel the Pro plan at any time from the link in your Lemon Squeezy purchase email or from the Lemon Squeezy customer portal.</li>
+            <li>After you cancel, you can keep using the Pro plan until the end of the period you have paid for. Once the App notices the expiry, Pro continues for 3 more days, after which the App returns to the Free plan. Your recorded meetings are not deleted and you can still open and export them, but the Free plan limits in Article 2 apply.</li>
+            <li>If your license becomes invalid, for example because of a refund or a reversed payment, the App returns to the Free plan as soon as it detects this.</li>
+            <li>Refunds follow Lemon Squeezy's refund policy and applicable law. To request a refund, contact Lemon Squeezy or us.</li>
+          </ol>
+
+          <h2>Article 5 (Prohibited conduct)</h2>
+          <p>When using the App, you must not:</p>
+          <ul>
+            <li>Violate any law or public order and morals</li>
+            <li>Infringe the rights of others, including privacy, likeness and copyright — for example, by recording meeting participants without their consent</li>
+            <li>Copy, modify, redistribute, rent or sell the App, or reverse engineer, decompile or disassemble it (except as permitted by law)</li>
+            <li>Circumvent the license mechanism, share a license key with others, or use a license key obtained improperly</li>
+            <li>Engage in any other conduct we reasonably consider inappropriate</li>
+          </ul>
+
+          <h2>Article 6 (Your responsibility for recordings)</h2>
+          <p>You record and transcribe with the App at your own responsibility. When recording a meeting, follow applicable laws and your organization's rules, including notifying participants and obtaining their consent in advance.</p>
+
+          <h2>Article 7 (AI output)</h2>
+          <p>Transcripts, summaries, chapters and other output are generated automatically by AI models and may contain errors or omissions. Always check important content yourself. We do not guarantee the accuracy, completeness or usefulness of the output.</p>
+
+          <h2>Article 8 (Your data)</h2>
+          <p>Data created in the App is stored only on your Mac; we do not keep it. You are responsible for backing up and managing your data. Our liability for any loss or corruption of data is as set out in Article 12.</p>
+
+          <h2>Article 9 (Third-party software and models)</h2>
+          <p>The App uses open-source software and third-party AI models published on Hugging Face and elsewhere. Each is subject to its own license terms.</p>
+
+          <h2>Article 10 (Intellectual property)</h2>
+          <p>Copyright and other intellectual property rights in the App and the Site belong to us or their rightful owners. The license in these Terms does not transfer any of these rights to you.</p>
+
+          <h2>Article 11 (Disclaimer of warranties)</h2>
+          <p>We do not warrant that the App is free of defects, fit for a particular purpose, or works with every Mac or meeting app. This does not exclude any liability we must bear by law (including liability for non-conformity to consumers), and our liability is as set out in Article 12.</p>
+
+          <h2>Article 12 (Limitation of liability)</h2>
+          <ol>
+            <li>If you suffer damage from our breach of contract or tort caused by our ordinary negligence, our liability is limited to direct and ordinary damage you actually suffered, up to the total fees you paid for the App in the 12 months before the damage occurred.</li>
+            <li>This limit does not apply in cases of our willful misconduct or gross negligence, or where it is not permitted by the Consumer Contract Act of Japan or other laws.</li>
+          </ol>
+
+          <h2>Article 13 (Changes to and discontinuation of the App)</h2>
+          <p>We may change the App or stop providing it. If we stop offering the Pro plan, we will give reasonable advance notice.</p>
+
+          <h2>Article 14 (Changes to these Terms)</h2>
+          <p>We may change these Terms when the change is in users' general interest, or when it does not conflict with the purpose of the contract and is reasonable in light of its necessity, the appropriateness of the new terms and other circumstances. We will post the updated Terms and their effective date on the Site a reasonable period before they take effect.</p>
+
+          <h2>Article 15 (Governing law and jurisdiction)</h2>
+          <p>These Terms are governed by and interpreted under the laws of Japan. The Tokyo District Court has jurisdiction in the first instance over any dispute relating to the App or these Terms. For consumers, this does not affect the mandatory laws of the country where you live or your right to bring a claim in its courts.</p>
+
+          <h2>Article 16 (Contact)</h2>
+          <p>Shumity Lab<br>Email: <a href="mailto:shumity.lab@gmail.com">shumity.lab@gmail.com</a></p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="border-t border-white/[.06]">
+    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-6 py-10 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/icon_64.png" alt="" width="22" height="22" class="h-[22px] w-[22px] opacity-90">
+        <span class="text-sm text-zinc-400">© <span id="year">2026</span> Shumity Lab. All rights reserved.</span>
+      </div>
+      <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-400">
+        <a href="privacy.html" class="hover:text-zinc-200 transition-colors"><span lang="ja">プライバシーポリシー</span><span lang="en">Privacy Policy</span></a>
+        <a href="terms.html" class="hover:text-zinc-200 transition-colors"><span lang="ja">利用規約</span><span lang="en">Terms of Service</span></a>
+        <a href="mailto:shumity.lab@gmail.com" class="hover:text-zinc-200 transition-colors"><span lang="ja">サポート</span><span lang="en">Support</span></a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // Same storage key as index.html, so the language carries over between pages.
+    const STORAGE_KEY = 'minuteai.lang';
+    const TITLES = { ja: '利用規約 — MinuteAI', en: 'Terms of Service — MinuteAI' };
+
+    function detectLang() {
+      const fromQuery = new URLSearchParams(location.search).get('lang');
+      if (fromQuery === 'ja' || fromQuery === 'en') return fromQuery;
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === 'ja' || saved === 'en') return saved;
+      } catch (_) {}
+      return (navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+    }
+
+    function applyLang(lang, { persist = true } = {}) {
+      document.documentElement.lang = lang;
+      document.title = TITLES[lang];
+      document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+        const active = btn.dataset.langBtn === lang;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.classList.toggle('bg-white/10', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('text-zinc-500', !active);
+      });
+      if (persist) {
+        try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {}
+      }
+    }
+
+    document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+      btn.addEventListener('click', () => applyLang(btn.dataset.langBtn));
+    });
+    document.getElementById('year').textContent = new Date().getFullYear();
+    applyLang(detectLang(), { persist: false });
+  </script>
+</body>
+</html>

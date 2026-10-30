@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MinuteAI — Macの中だけで完結する、完全ローカルAI議事録</title>
+  <meta name="description" content="MinuteAI はクラウド送信ゼロの Mac 用 AI 議事録アプリ。Whisper と MLX で、文字起こしも要約もすべて Mac の中で完結します。">
+  <meta name="theme-color" content="#07070b">
+  <meta property="og:title" content="MinuteAI — 100% On-Device & Private AI Meeting Assistant for Mac">
+  <meta property="og:description" content="Real-time transcription and AI summaries that never leave your Mac.">
+  <meta property="og:image" content="assets/icon_1024.png">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icon_32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/icon_64.png">
+  <link rel="apple-touch-icon" href="assets/icon_256.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', '"Hiragino Sans"', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
+            mono: ['"SF Mono"', '"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+          colors: { ink: { 950: '#07070b', 900: '#0b0b12', 800: '#12121c' } },
+        },
+      },
+    };
+  </script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root { color-scheme: dark; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { background: #07070b; }
+    ::selection { background: rgba(129, 140, 248, .35); color: #fff; }
+
+    /* Fine dot grid that fades out toward the edges */
+    .grid-bg {
+      background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
+    }
+    .glow {
+      position: absolute; border-radius: 9999px; filter: blur(110px); pointer-events: none;
+    }
+
+    .text-gradient {
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,.72) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .text-accent {
+      background: linear-gradient(90deg, #a5b4fc 0%, #c4b5fd 45%, #67e8f9 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    /* Glass surface with a 1px hairline border */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+    }
+    /* Gradient hairline border (used on the Pro card and video frame) */
+    .ring-gradient { position: relative; }
+    .ring-gradient::before {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+      background: linear-gradient(160deg, rgba(165,180,252,.55), rgba(196,181,253,.15) 35%, rgba(255,255,255,.04) 60%, rgba(103,232,249,.35));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+    }
+
+    .hairline { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent); }
+
+    /* Hero icon: soft floating + halo */
+    @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+    .float { animation: float 6s ease-in-out infinite; }
+    .icon-halo { filter: drop-shadow(0 20px 60px rgba(99,102,241,.45)) drop-shadow(0 0 30px rgba(34,211,238,.25)); }
+
+    a:focus-visible, button:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
+    /* Term correction demo */
+    .t-old { border-radius: 6px; background: rgba(239,68,68,.1); padding: 1px 6px; color: #fca5a5; text-decoration: line-through; text-decoration-color: rgba(248,113,113,.7); }
+    .t-new { border-radius: 6px; background: rgba(52,211,153,.15); padding: 1px 6px; color: #a7f3d0; }
+    .step-num { display: inline-flex; height: 18px; width: 18px; align-items: center; justify-content: center; border-radius: 9999px; border: 1px solid rgba(103,232,249,.35); background: rgba(103,232,249,.1); color: #a5f3fc; font-size: 10px; }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.is-visible { opacity: 1; transform: none; }
+
+    /* FAQ accordion */
+    .faq-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease; }
+    .faq-body > div { visibility: hidden; transition: visibility 0s .35s; }
+    .faq-item.open .faq-body { grid-template-rows: 1fr; }
+    .faq-item.open .faq-body > div { visibility: visible; transition: none; }
+    .faq-item.open .faq-chevron { transform: rotate(45deg); }
+    .faq-chevron { transition: transform .3s ease; }
+
+    /* Fade the text briefly when the language changes */
+    [data-i18n], [data-i18n-html] { transition: opacity .18s ease; }
+    body.lang-switching [data-i18n], body.lang-switching [data-i18n-html] { opacity: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+
+<body class="font-sans text-zinc-300 antialiased overflow-x-hidden">
+
+  <!-- ============ Header ============ -->
+  <header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <nav class="mt-3 flex h-14 items-center justify-between rounded-2xl px-3 sm:px-4 transition-all duration-300" id="navInner">
+        <a href="#top" class="flex items-center gap-2.5">
+          <img src="assets/icon_64.png" alt="" width="28" height="28" class="h-7 w-7">
+          <span class="hidden min-[400px]:inline text-[15px] font-semibold tracking-tight text-white">MinuteAI</span>
+        </a>
+
+        <div class="flex items-center gap-1.5 sm:gap-3">
+          <a href="#features" class="hidden md:inline-block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors" data-i18n="nav.features">機能</a>
+          <a href="#pricing" class="hidden sm:inline-block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors" data-i18n="nav.pricing">料金</a>
+          <a href="#faq" class="hidden md:inline-block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors" data-i18n="nav.faq">FAQ</a>
+
+          <!-- Language toggle -->
+          <div class="flex items-center rounded-full border border-white/10 bg-white/[.03] p-0.5 text-xs" role="group" aria-label="言語 / Language">
+            <button type="button" data-lang-btn="ja" lang="ja" aria-label="日本語" class="lang-btn rounded-full px-2.5 py-1 transition-colors" aria-pressed="true">
+              <span aria-hidden="true">🇯🇵</span><span class="hidden sm:inline ml-1">日本語</span>
+            </button>
+            <button type="button" data-lang-btn="en" lang="en" aria-label="English" class="lang-btn rounded-full px-2.5 py-1 transition-colors" aria-pressed="false">
+              <span aria-hidden="true">🇺🇸</span><span class="hidden sm:inline ml-1">English</span>
+            </button>
+          </div>
+
+          <a href="#download" data-download class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white px-3.5 py-1.5 text-sm font-medium text-black hover:bg-zinc-200 transition-colors">
+            <i data-lucide="download" class="h-3.5 w-3.5"></i>
+            <span data-i18n="nav.cta">無料ダウンロード</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ============ Hero ============ -->
+    <section class="relative pt-32 sm:pt-40 pb-20 overflow-hidden">
+      <div class="absolute inset-0 grid-bg"></div>
+      <div class="glow w-[720px] h-[420px] -top-40 left-1/2 -translate-x-1/2 bg-indigo-600/30"></div>
+      <div class="glow w-[420px] h-[320px] top-40 left-[12%] bg-violet-600/20"></div>
+      <div class="glow w-[380px] h-[300px] top-56 right-[10%] bg-cyan-500/10"></div>
+
+      <div class="relative mx-auto max-w-6xl px-4 sm:px-6 text-center">
+        <!-- Icon badge -->
+        <div class="flex justify-center">
+          <div class="relative float">
+            <div class="absolute inset-6 rounded-[36px] bg-indigo-500/30 blur-2xl"></div>
+            <img src="assets/icon_512.png" srcset="assets/icon_256.png 1x, assets/icon_512.png 2x" alt="MinuteAI" data-i18n-alt="hero.iconAlt" width="152" height="152" class="relative h-32 w-32 sm:h-[152px] sm:w-[152px] icon-halo">
+          </div>
+        </div>
+
+        <a href="#features" class="mt-8 inline-flex items-center gap-2 rounded-full glass px-3.5 py-1.5 text-xs text-zinc-300 hover:text-white transition-colors">
+          <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,.9)]"></span>
+          <span data-i18n="hero.badge">Apple Silicon ネイティブ · Whisper + MLX</span>
+          <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-zinc-500"></i>
+        </a>
+
+        <h1 class="mx-auto mt-6 max-w-4xl text-[2.15rem] leading-[1.15] sm:text-5xl md:text-6xl md:leading-[1.08] font-bold tracking-tight text-gradient" data-i18n-html="hero.title">
+          Macの中だけで完結する、<br class="hidden sm:block"><span class="text-accent">完全ローカルAI議事録</span>
+        </h1>
+
+        <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-zinc-400" data-i18n-html="hero.subtitle">
+          <strong class="font-medium text-zinc-200">クラウド送信ゼロ。</strong>仮想オーディオドライバ不要で、オンライン会議の相手の声までクリアに録音。Whisper による文字起こしと MLX による要約が、すべてあなたの Mac の上で動きます。
+        </p>
+
+        <div id="download" class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 scroll-mt-32">
+          <a href="#" data-download class="group inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-white px-6 py-3.5 text-[15px] font-semibold text-black shadow-[0_0_0_1px_rgba(255,255,255,.1),0_8px_40px_-8px_rgba(165,180,252,.6)] hover:bg-zinc-100 transition-all">
+            <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.78c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.2 6.3c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg>
+            <span data-i18n="hero.ctaPrimary">MinuteAI を無料ダウンロード (.dmg)</span>
+          </a>
+          <a href="#pricing" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl glass px-6 py-3.5 text-[15px] font-medium text-white hover:bg-white/[.08] transition-colors">
+            <i data-lucide="sparkles" class="h-4 w-4 text-indigo-300"></i>
+            <span data-i18n="hero.ctaSecondary">Pro を始める</span>
+          </a>
+        </div>
+        <p class="mt-4 text-xs text-zinc-400" data-i18n="hero.requirements">macOS 15 以降 · Apple Silicon (M1 以降) · 無料版はクレジットカード不要</p>
+
+        <!-- ===== Product video ===== -->
+        <div class="reveal relative mx-auto mt-16 sm:mt-20 max-w-5xl">
+          <div class="absolute -inset-x-10 -top-10 bottom-0 bg-gradient-to-b from-indigo-500/20 via-violet-500/10 to-transparent blur-3xl rounded-[48px]"></div>
+          <div class="relative overflow-hidden rounded-2xl ring-gradient bg-[#0d0d14] shadow-[0_40px_120px_-20px_rgba(0,0,0,.8),0_0_0_1px_rgba(255,255,255,.04)]">
+            <!-- Screen recordings of the real app: assets/demo-ja.mp4, assets/demo-en.mp4, or assets/demo.mp4 for both -->
+            <video id="demoVideo" class="block aspect-video w-full object-cover" width="1920" height="1080" muted loop playsinline preload="auto" data-i18n-aria="video.label" aria-label="MinuteAI の画面"></video>
+            <div id="demoFallback" class="hidden aspect-video flex-col items-center justify-center gap-4 px-6 text-center">
+              <img src="assets/icon_256.png" alt="" width="72" height="72" class="h-[72px] w-[72px] opacity-80">
+              <p class="text-sm text-zinc-400" data-i18n="video.soon">デモ動画は近日公開予定です</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust strip -->
+        <div class="reveal mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-zinc-400">
+          <span class="flex items-center gap-2"><i data-lucide="wifi-off" class="h-3.5 w-3.5"></i><span data-i18n="trust.offline">モデル取得後はオフラインで動作</span></span>
+          <span class="flex items-center gap-2"><i data-lucide="lock" class="h-3.5 w-3.5"></i><span data-i18n="trust.noAccount">アカウント登録不要</span></span>
+          <span class="flex items-center gap-2"><i data-lucide="languages" class="h-3.5 w-3.5"></i><span data-i18n="trust.languages">13言語に対応</span></span>
+          <span class="flex items-center gap-2"><i data-lucide="cpu" class="h-3.5 w-3.5"></i><span data-i18n="trust.silicon">Apple Silicon 最適化</span></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="hairline mx-auto max-w-5xl"></div>
+
+    <!-- ============ Features ============ -->
+    <section id="features" class="relative py-24 sm:py-32 scroll-mt-16">
+      <div class="glow w-[520px] h-[360px] top-24 left-1/2 -translate-x-1/2 bg-violet-700/15"></div>
+      <div class="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="reveal mx-auto max-w-2xl text-center">
+          <p class="text-xs font-semibold uppercase tracking-[.2em] text-indigo-300" data-i18n="features.eyebrow">Why MinuteAI</p>
+          <h2 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient" data-i18n-html="features.title">機密の会議ほど、<br class="sm:hidden">ローカルで。</h2>
+          <p class="mt-4 text-zinc-400 leading-relaxed" data-i18n="features.subtitle">音声も、文字起こしも、要約も。あなたの Mac の外に出ることはありません。</p>
+        </div>
+
+        <div class="mt-16 grid gap-4 md:grid-cols-3">
+          <!-- 1 -->
+          <article class="reveal group relative rounded-2xl glass p-7 transition-colors hover:bg-white/[.05]">
+            <div class="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent"></div>
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-b from-indigo-500/25 to-indigo-500/5 text-indigo-200 shadow-[0_0_24px_-4px_rgba(99,102,241,.6)]">
+              <i data-lucide="shield-check" class="h-5 w-5"></i>
+            </div>
+            <p class="mt-6 font-mono text-[11px] text-zinc-500">01</p>
+            <h3 class="mt-1 text-lg font-semibold tracking-tight text-white" data-i18n="f1.title">完全ローカル、クラウド送信ゼロ</h3>
+            <p class="mt-3 text-sm leading-relaxed text-zinc-400" data-i18n="f1.desc">クラウドへの送信は一切なし。音声・文字起こし・メモ・要約はすべて Mac の中に留まります。弁護士・税理士などのクライアント相談、役員会、医療機関の打ち合わせなど、外に出せない会議にも安心して使えます。</p>
+            <ul class="mt-5 space-y-2 text-[13px] text-zinc-400">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-indigo-300"></i><span data-i18n="f1.b1">外部サーバーへのアップロードなし</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-indigo-300"></i><span data-i18n="f1.b2">アカウント登録・ログイン不要</span></li>
+            </ul>
+          </article>
+
+          <!-- 2 -->
+          <article class="reveal group relative rounded-2xl glass p-7 transition-colors hover:bg-white/[.05]" style="transition-delay:.08s">
+            <div class="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent"></div>
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-b from-violet-500/25 to-violet-500/5 text-violet-200 shadow-[0_0_24px_-4px_rgba(139,92,246,.6)]">
+              <i data-lucide="audio-waveform" class="h-5 w-5"></i>
+            </div>
+            <p class="mt-6 font-mono text-[11px] text-zinc-500">02</p>
+            <h3 class="mt-1 text-lg font-semibold tracking-tight text-white" data-i18n="f2.title">仮想オーディオドライバ不要</h3>
+            <p class="mt-3 text-sm leading-relaxed text-zinc-400" data-i18n="f2.desc">BlackHole などの面倒な仮想ドライバ設定は不要。macOS のプロセスタップでシステム音声を直接取り込み、自前の SpeexDSP エコーキャンセルでスピーカー再生時の二重録音も除去。相手の声も自分の声もクリアに残ります。</p>
+            <ul class="mt-5 space-y-2 text-[13px] text-zinc-400">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-violet-300"></i><span data-i18n="f2.b1">Zoom・Meet・Teams など、Mac で再生される音声を録音</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-violet-300"></i><span data-i18n="f2.b2">マイク + システム音声を同時録音</span></li>
+            </ul>
+          </article>
+
+          <!-- 3 -->
+          <article class="reveal group relative rounded-2xl glass p-7 transition-colors hover:bg-white/[.05]" style="transition-delay:.16s">
+            <div class="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent"></div>
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-b from-cyan-500/25 to-cyan-500/5 text-cyan-200 shadow-[0_0_24px_-4px_rgba(34,211,238,.5)]">
+              <i data-lucide="wand-sparkles" class="h-5 w-5"></i>
+            </div>
+            <p class="mt-6 font-mono text-[11px] text-zinc-500">03</p>
+            <h3 class="mt-1 text-lg font-semibold tracking-tight text-white" data-i18n="f3.title">用語のリアルタイム修正とローカル MLX 要約</h3>
+            <p class="mt-3 text-sm leading-relaxed text-zinc-400" data-i18n="f3.desc">聞き間違えられた用語を一度直せば、それまでの文字起こしにも、これからの文字起こしにも即座に反映。要約は Apple Silicon に最適化された MLX のローカル LLM が高速に生成します。</p>
+            <ul class="mt-5 space-y-2 text-[13px] text-zinc-400">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-cyan-300"></i><span data-i18n="f3.b1">マーカーとメモを重視した要約</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-cyan-300"></i><span data-i18n="f3.b2">章立ての自動生成</span></li>
+            </ul>
+          </article>
+        </div>
+
+        <!-- Term correction demo -->
+        <div class="reveal mt-4 grid gap-4 md:grid-cols-[1fr_1.4fr]">
+          <div class="rounded-2xl glass p-7">
+            <p class="text-xs font-semibold uppercase tracking-[.2em] text-cyan-300" data-i18n="demo.eyebrow">単語の修正</p>
+            <h3 class="mt-3 text-xl font-semibold tracking-tight text-white" data-i18n="demo.title">聞き間違えた単語は、1回直せば全部直る。</h3>
+            <p class="mt-3 text-sm leading-relaxed text-zinc-400" data-i18n="demo.desc"></p>
+          </div>
+          <div class="rounded-2xl glass p-5 sm:p-6 text-[13px]">
+            <div class="flex items-center gap-2 text-xs font-medium text-zinc-300"><span class="step-num">1</span><span data-i18n="demo.step1">単語一覧で直す</span></div>
+            <div class="mt-2.5 flex flex-wrap items-center gap-2 rounded-xl border border-white/[.08] bg-black/20 px-3 py-2.5">
+              <span class="t-old" data-i18n="demo.wrong">ミニッツエーアイ</span>
+              <i data-lucide="arrow-right" class="h-3.5 w-3.5 text-zinc-500"></i>
+              <span class="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-emerald-200">MinuteAI</span>
+            </div>
+
+            <div class="mt-5 flex items-center gap-2 text-xs font-medium text-zinc-300"><span class="step-num">2</span><span data-i18n="demo.step2">文字起こしの同じ単語がすべて書き換わる</span></div>
+            <div class="mt-2.5 space-y-2 text-zinc-300">
+              <p class="flex gap-3"><span class="w-9 shrink-0 font-mono text-[11px] leading-5 text-zinc-500">00:41</span><span data-i18n-html="demo.l1"></span></p>
+              <p class="flex gap-3"><span class="w-9 shrink-0 font-mono text-[11px] leading-5 text-zinc-500">03:12</span><span data-i18n-html="demo.l2"></span></p>
+            </div>
+
+            <div class="mt-5 flex items-center gap-2 text-xs font-medium text-zinc-300"><span class="step-num">3</span><span data-i18n="demo.step3">このあとの発言にも反映される</span></div>
+            <div class="mt-2.5 text-zinc-300">
+              <p class="flex gap-3"><span class="w-9 shrink-0 font-mono text-[11px] leading-5 text-zinc-500">12:05</span><span data-i18n-html="demo.l3"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="hairline mx-auto max-w-5xl"></div>
+
+    <!-- ============ Pricing ============ -->
+    <section id="pricing" class="relative py-24 sm:py-32 scroll-mt-16">
+      <div class="glow w-[640px] h-[400px] top-40 left-1/2 -translate-x-1/2 bg-indigo-700/20"></div>
+      <div class="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="reveal mx-auto max-w-2xl text-center">
+          <p class="text-xs font-semibold uppercase tracking-[.2em] text-indigo-300" data-i18n="pricing.eyebrow">Pricing</p>
+          <h2 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient" data-i18n="pricing.title">シンプルな料金プラン。</h2>
+          <p class="mt-4 text-zinc-400" data-i18n="pricing.subtitle">まずは無料版で、すべてのコア機能をお試しください。Pro はいつでも解約できます。</p>
+        </div>
+
+        <!-- Billing period toggle -->
+        <div class="reveal mt-10 flex justify-center">
+          <div class="flex items-center rounded-full border border-white/10 bg-white/[.03] p-1 text-sm" role="group" data-i18n-aria="billing.label" aria-label="支払いサイクル">
+            <button type="button" data-billing-btn="monthly" class="rounded-full px-4 py-1.5 transition-colors" data-i18n="billing.monthly">月払い</button>
+            <button type="button" data-billing-btn="yearly" class="flex items-center gap-2 rounded-full px-4 py-1.5 transition-colors">
+              <span data-i18n="billing.yearly">年払い</span>
+              <span class="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300" data-billing-save>35%お得</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-10 mx-auto grid max-w-4xl gap-4 md:grid-cols-2">
+          <!-- Free -->
+          <div class="reveal flex flex-col rounded-3xl glass p-8">
+            <h3 class="text-base font-semibold text-white">Free</h3>
+            <p class="mt-1 text-sm text-zinc-500" data-i18n="free.tagline">まずは試してみたい方に</p>
+            <div class="mt-6 flex items-baseline gap-1.5">
+              <span class="text-5xl font-bold tracking-tight text-white" data-i18n="free.price">$0</span>
+            </div>
+            <p class="mt-1 text-xs text-zinc-400" data-i18n="free.priceNote">ずっと無料</p>
+            <ul class="mt-8 mb-10 space-y-3.5 text-sm text-zinc-300">
+              <li class="flex gap-3"><i data-lucide="timer" class="h-4 w-4 shrink-0 text-zinc-500 mt-0.5"></i><span data-i18n="free.f1">1回の録音は最大 15分</span></li>
+              <li class="flex gap-3"><i data-lucide="archive" class="h-4 w-4 shrink-0 text-zinc-500 mt-0.5"></i><span data-i18n="free.f2">保存できる会議は最大 2件</span></li>
+              <li class="flex gap-3"><i data-lucide="check" class="h-4 w-4 shrink-0 text-zinc-500 mt-0.5"></i><span data-i18n="free.f3">全コア機能 (文字起こし・要約・用語修正)</span></li>
+              <li class="flex gap-3"><i data-lucide="check" class="h-4 w-4 shrink-0 text-zinc-500 mt-0.5"></i><span data-i18n="free.f4">エコーキャンセル対応</span></li>
+            </ul>
+            <a href="#" data-download class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-5 py-3 text-sm font-medium text-white hover:bg-white/[.08] transition-colors">
+              <i data-lucide="download" class="h-4 w-4"></i>
+              <span data-i18n="free.cta">無料でダウンロード</span>
+            </a>
+          </div>
+
+          <!-- Pro -->
+          <div class="reveal relative flex flex-col rounded-3xl border border-transparent ring-gradient bg-gradient-to-b from-indigo-500/[.12] via-violet-500/[.05] to-white/[.02] p-8 shadow-[0_30px_80px_-30px_rgba(99,102,241,.55)] backdrop-blur-xl" style="transition-delay:.08s">
+            <div class="absolute -top-px left-1/2 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-indigo-300 to-transparent"></div>
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-semibold text-white">Pro</h3>
+              <span class="inline-flex items-center gap-1 rounded-full border border-indigo-300/30 bg-indigo-400/15 px-2.5 py-1 text-[11px] font-medium text-indigo-100">
+                <i data-lucide="star" class="h-3 w-3 fill-current"></i>
+                <span data-i18n="pro.badge">おすすめ</span>
+              </span>
+            </div>
+            <p class="mt-1 text-sm text-zinc-400" data-i18n="pro.tagline">毎日の会議に、制限なく</p>
+            <div class="mt-6 flex items-baseline gap-2">
+              <span class="text-5xl font-bold tracking-tight text-white" data-pro-price>$39</span>
+              <span class="text-sm text-zinc-400" data-pro-unit>/ 年</span>
+            </div>
+            <p class="mt-1 text-xs text-zinc-400" data-pro-note>月あたり $3.25 · 毎年自動更新 · いつでも解約できます</p>
+            <ul class="mt-8 mb-10 space-y-3.5 text-sm text-zinc-200">
+              <li class="flex gap-3"><i data-lucide="infinity" class="h-4 w-4 shrink-0 text-indigo-300 mt-0.5"></i><span data-i18n="pro.f1">録音時間 完全無制限</span></li>
+              <li class="flex gap-3"><i data-lucide="database" class="h-4 w-4 shrink-0 text-indigo-300 mt-0.5"></i><span data-i18n="pro.f2">保存件数 無制限</span></li>
+              <li class="flex gap-3"><i data-lucide="laptop" class="h-4 w-4 shrink-0 text-indigo-300 mt-0.5"></i><span data-i18n="pro.f3">2台の Mac まで認証可能</span></li>
+              <li class="flex gap-3"><i data-lucide="refresh-cw" class="h-4 w-4 shrink-0 text-indigo-300 mt-0.5"></i><span data-i18n="pro.f4">アップデートはすべて追加料金なし</span></li>
+              <li class="flex gap-3"><i data-lucide="check" class="h-4 w-4 shrink-0 text-indigo-300 mt-0.5"></i><span data-i18n="pro.f5">Free のすべての機能</span></li>
+            </ul>
+            <a href="#" data-purchase class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-white px-5 py-3 text-sm font-semibold text-black shadow-[0_8px_30px_-8px_rgba(165,180,252,.7)] hover:bg-zinc-100 transition-colors">
+              <i data-lucide="sparkles" class="h-4 w-4"></i>
+              <span data-i18n="pro.cta">Pro を始める</span>
+            </a>
+          </div>
+        </div>
+        <!-- Before you buy -->
+        <div class="reveal mx-auto mt-6 max-w-4xl rounded-2xl glass px-5 py-4 sm:px-6">
+          <div class="flex gap-3">
+            <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-zinc-400"></i>
+            <div class="text-sm leading-relaxed text-zinc-400">
+              <p class="font-medium text-zinc-200" data-i18n="notice.title">ご購入前にご確認ください</p>
+              <ul class="mt-2 list-disc space-y-1 pl-4 marker:text-zinc-600">
+                <li data-i18n="notice.accuracy">文字起こしと要約の精度は、使用する AI モデルや Mac の性能、録音環境（マイクや話し方など）によって変わります。</li>
+                <li data-i18n="notice.tryFree">お使いの Mac と会議環境で問題なく動くことを、まず無料版で確かめてから Pro をお申し込みください。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <p class="reveal mt-6 text-center text-xs text-zinc-400" data-i18n="pricing.footnote">価格は米ドルです。決済は Lemon Squeezy で安全に行われ、地域によって税が加算される場合があります。解約後も録音済みの会議はすべて残ります。</p>
+      </div>
+    </section>
+
+    <div class="hairline mx-auto max-w-5xl"></div>
+
+    <!-- ============ FAQ ============ -->
+    <section id="faq" class="relative py-24 sm:py-32 scroll-mt-16">
+      <div class="relative mx-auto max-w-3xl px-4 sm:px-6">
+        <div class="reveal text-center">
+          <p class="text-xs font-semibold uppercase tracking-[.2em] text-indigo-300">FAQ</p>
+          <h2 class="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-gradient" data-i18n="faq.title">よくある質問</h2>
+        </div>
+
+        <div class="reveal mt-12 divide-y divide-white/[.06] rounded-2xl glass" id="faqList">
+          <!-- Rendered from the translation table so the questions switch language with everything else -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Final CTA ============ -->
+    <section class="relative pb-28">
+      <div class="relative mx-auto max-w-5xl px-4 sm:px-6">
+        <div class="reveal relative overflow-hidden rounded-3xl ring-gradient bg-gradient-to-b from-indigo-500/[.10] to-transparent px-6 py-16 text-center">
+          <div class="glow w-[480px] h-[260px] -top-24 left-1/2 -translate-x-1/2 bg-indigo-500/30"></div>
+          <img src="assets/icon_256.png" alt="" width="72" height="72" class="relative mx-auto h-[72px] w-[72px] icon-halo">
+          <h2 class="relative mt-6 text-3xl sm:text-4xl font-bold tracking-tight text-gradient" data-i18n="cta.title">会議の記録を、Mac の中に。</h2>
+          <p class="relative mt-4 text-zinc-400" data-i18n="cta.subtitle">数分でセットアップ完了。今日の会議から使えます。</p>
+          <div class="relative mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="#" data-download class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black hover:bg-zinc-100 transition-colors">
+              <i data-lucide="download" class="h-4 w-4"></i>
+              <span data-i18n="hero.ctaPrimary">MinuteAI を無料ダウンロード (.dmg)</span>
+            </a>
+            <a href="#pricing" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl glass px-6 py-3 text-sm font-medium text-white hover:bg-white/[.08] transition-colors">
+              <span data-i18n="hero.ctaSecondary">Pro を始める</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Footer ============ -->
+  <footer class="border-t border-white/[.06]">
+    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-6 py-10 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/icon_64.png" alt="" width="22" height="22" class="h-[22px] w-[22px] opacity-90">
+        <span class="text-sm text-zinc-400">© <span id="year">2026</span> Shumity Lab. <span data-i18n="footer.rights">All rights reserved.</span></span>
+      </div>
+      <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-400">
+        <a href="privacy.html" data-link="privacy" class="hover:text-zinc-200 transition-colors" data-i18n="footer.privacy">プライバシーポリシー</a>
+        <a href="terms.html" data-link="terms" class="hover:text-zinc-200 transition-colors" data-i18n="footer.terms">利用規約</a>
+        <a href="mailto:shumity.lab@gmail.com" data-link="support" class="hover:text-zinc-200 transition-colors inline-flex items-center gap-1.5"><i data-lucide="mail" class="h-3.5 w-3.5"></i><span data-i18n="footer.support">サポート</span></a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // ---------------------------------------------------------------
+    // Links: replace these before release.
+    // ---------------------------------------------------------------
+    const LINKS = {
+      download: 'https://github.com/shumity-lab/MinuteAI/releases/latest/download/MinuteAI-Installer.dmg',
+      purchaseMonthly: 'https://shumity-lab.lemonsqueezy.com/checkout/buy/8cf187aa-fbbf-4ec6-8810-4af3c70bd31e',
+      purchaseYearly: 'https://shumity-lab.lemonsqueezy.com/checkout/buy/46887b37-8eb7-4c17-80cf-3b39cc2e2dc0',
+      privacy: 'privacy.html',
+      terms: 'terms.html',
+      support: 'mailto:shumity.lab@gmail.com',
+    };
+
+    // Pro prices, the same as the Lemon Squeezy variants (sold in US dollars in every language).
+    // $39 a year against $4.99 × 12 = $59.88 a month is 35% off.
+    const PRICE = { monthly: '$4.99', yearly: '$39', yearlyPerMonth: '$3.25', yearlySaving: '35' };
+
+    // Screen recordings of the real app, tried in order until one loads.
+    const DEMO_VIDEOS = {
+      ja: ['assets/demo-ja.mp4', 'assets/demo.mp4'],
+      en: ['assets/demo-en.mp4', 'assets/demo.mp4'],
+    };
+
+    // ---------------------------------------------------------------
+    // Translations
+    // ---------------------------------------------------------------
+    const I18N = {
+      ja: {
+        'meta.title': 'MinuteAI — Macの中だけで完結する、完全ローカルAI議事録',
+        'meta.description': 'MinuteAI はクラウド送信ゼロの Mac 用 AI 議事録アプリ。Whisper と MLX で、文字起こしも要約もすべて Mac の中で完結します。',
+
+        'nav.features': '機能',
+        'nav.pricing': '料金',
+        'nav.faq': 'FAQ',
+        'nav.cta': '無料ダウンロード',
+
+        'hero.badge': 'Apple Silicon ネイティブ · Whisper + MLX',
+        'hero.iconAlt': 'MinuteAI のアプリアイコン',
+        'video.label': 'MinuteAI で会議を文字起こし・要約している画面',
+        'video.soon': 'デモ動画は近日公開予定です',
+        'hero.title': 'Macの中だけで完結する、<br class="hidden sm:block"><span class="text-accent">完全ローカルAI議事録</span>',
+        'hero.subtitle': '<strong class="font-medium text-zinc-200">クラウド送信ゼロ。</strong>仮想オーディオドライバ不要で、オンライン会議の相手の声までクリアに録音。Whisper による文字起こしと MLX による要約が、すべてあなたの Mac の上で動きます。',
+        'hero.ctaPrimary': 'MinuteAI を無料ダウンロード (.dmg)',
+        'hero.ctaSecondary': 'Pro を始める',
+        'hero.requirements': 'macOS 15 以降 · Apple Silicon (M1 以降) · 無料版はクレジットカード不要',
+
+
+        'trust.offline': 'モデル取得後はオフラインで動作',
+        'trust.noAccount': 'アカウント登録不要',
+        'trust.languages': '13言語に対応',
+        'trust.silicon': 'Apple Silicon 最適化',
+
+        'features.eyebrow': 'Why MinuteAI',
+        'features.title': '機密の会議ほど、<br class="sm:hidden">ローカルで。',
+        'features.subtitle': '音声も、文字起こしも、要約も。あなたの Mac の外に出ることはありません。',
+        'f1.title': '完全ローカル、クラウド送信ゼロ',
+        'f2.title': '仮想オーディオドライバ不要',
+        'f3.title': '用語のリアルタイム修正とローカル MLX 要約',
+        'f1.desc': 'クラウドへの送信は一切なし。音声・文字起こし・メモ・要約はすべて Mac の中に留まります。弁護士・税理士などのクライアント相談、役員会、医療機関の打ち合わせなど、外に出せない会議にも安心して使えます。',
+        'f1.b1': '外部サーバーへのアップロードなし',
+        'f1.b2': 'アカウント登録・ログイン不要',
+        'f2.desc': 'BlackHole などの面倒な仮想ドライバ設定は不要。macOS のプロセスタップでシステム音声を直接取り込み、自前の SpeexDSP エコーキャンセルでスピーカー再生時の二重録音も除去。相手の声も自分の声もクリアに残ります。',
+        'f2.b1': 'Zoom・Meet・Teams など、Mac で再生される音声を録音',
+        'f2.b2': 'マイク + システム音声を同時録音',
+        'f3.desc': '聞き間違えられた用語を一度直せば、それまでの文字起こしにも、これからの文字起こしにも即座に反映。要約は Apple Silicon に最適化された MLX のローカル LLM が高速に生成します。',
+        'f3.b1': 'マーカーとメモを重視した要約',
+        'f3.b2': '章立ての自動生成',
+
+        'demo.eyebrow': '単語の修正',
+        'demo.title': '聞き間違えた単語は、1回直せば全部直る。',
+        'demo.desc': '文字起こしに出てきた単語は、画面横の単語一覧に自動で並びます。聞き間違えられた単語を一覧で1回直すだけで、文字起こしの中の同じ単語がすべて書き換わり、このあとの発言にも同じ直し方が使われます。',
+        'demo.step1': '単語一覧で直す',
+        'demo.step2': '文字起こしの同じ単語がすべて書き換わる',
+        'demo.step3': 'このあとの発言にも反映される',
+        'demo.wrong': 'ミニッツエーアイ',
+        'demo.l1': '次のリリースで <del class="t-old">ミニッツエーアイ</del> <mark class="t-new">MinuteAI</mark> の要約を改善します',
+        'demo.l2': '<del class="t-old">ミニッツエーアイ</del> <mark class="t-new">MinuteAI</mark> はオフラインでも動きます',
+        'demo.l3': '<mark class="t-new">MinuteAI</mark> の価格は来週決めましょう',
+
+        'pricing.eyebrow': 'Pricing',
+        'pricing.title': 'シンプルな料金プラン。',
+        'pricing.subtitle': 'まずは無料版で、すべてのコア機能をお試しください。Pro はいつでも解約できます。',
+        'pricing.footnote': '価格は米ドルです。決済は Lemon Squeezy で安全に行われ、地域によって税が加算される場合があります。解約後も録音済みの会議はすべて残ります。',
+        'billing.label': '支払いサイクル',
+        'billing.monthly': '月払い',
+        'billing.yearly': '年払い',
+        'billing.save': '{saving}%お得',
+        'free.tagline': 'まずは試してみたい方に',
+        'free.price': '$0',
+        'free.priceNote': 'ずっと無料',
+        'free.f1': '1回の録音は最大 15分',
+        'free.f2': '保存できる会議は最大 2件',
+        'free.f3': '全コア機能 (文字起こし・要約・用語修正)',
+        'free.f4': 'エコーキャンセル対応',
+        'free.cta': '無料でダウンロード',
+        'pro.badge': 'おすすめ',
+        'pro.tagline': '毎日の会議に、制限なく',
+        'pro.unit.monthly': '/ 月',
+        'pro.unit.yearly': '/ 年',
+        'pro.note.monthly': '毎月自動更新 · いつでも解約できます',
+        'pro.note.yearly': '月あたり {perMonth} · 毎年自動更新 · いつでも解約できます',
+        'pro.f1': '録音時間 完全無制限',
+        'pro.f2': '保存件数 無制限',
+        'pro.f3': '2台の Mac まで認証可能',
+        'pro.f4': 'アップデートはすべて追加料金なし',
+        'pro.f5': 'Free のすべての機能',
+        'pro.cta': 'Pro を始める',
+        'notice.title': 'ご購入前にご確認ください',
+        'notice.accuracy': '文字起こしと要約の精度は、使用する AI モデルや Mac の性能、録音環境（マイクや話し方など）によって変わります。',
+        'notice.tryFree': 'お使いの Mac と会議環境で問題なく動くことを、まず無料版で確かめてから Pro をお申し込みください。',
+
+        'faq.title': 'よくある質問',
+        'faq.items': [
+          ['インターネットに接続していなくても使えますか？',
+           'はい。初回に文字起こし用・要約用の AI モデルをダウンロードすれば、その後の録音・文字起こし・要約はすべてオフラインで動作します。通信が発生するのは、モデルの一覧取得とダウンロード、Pro ライセンスの認証・解除・状態の確認、単語一覧から自分で Google 検索を開いたときだけで、会議の音声や文字起こしが送られることはありません。'],
+          ['会議の音声や文字起こしが外部に送信されることはありますか？',
+           'ありません。音声・文字起こし・メモ・要約はすべて Mac 内に保存され、MinuteAI のサーバーを含むどこにもアップロードされません。'],
+          ['動作環境を教えてください。',
+           'Apple Silicon (M1〜M4 シリーズおよびそれ以降) 搭載の Mac と macOS 15 以降が必要です。Intel Mac には対応していません。メモリは 16GB 以上を推奨します (8GB の場合は軽量なモデルを選んでください)。モデル用に 3〜6GB 程度の空き容量が必要です。'],
+          ['文字起こしや要約の精度はどのくらいですか？',
+           '使用する AI モデル、Mac の性能、録音環境（マイクの品質、話す速さや声の大きさ、雑音など）によって変わります。設定画面で、軽いモデルと高精度なモデルを選べます。高精度なモデルを快適に使うには、メモリ 16GB 以上の Mac をおすすめします。固有名詞や専門用語は誤認識されやすいため、単語一覧で直すと、文字起こし全体に反映されます。'],
+          ['Pro を申し込む前に試せますか？',
+           'はい。無料版でも、文字起こし・要約・単語の修正・エコーキャンセルなど、すべての機能を使えます（録音は1回15分まで、保存できる会議は2件まで）。お使いの Mac と会議環境で問題なく動くことを、まず無料版で確かめてから Pro をお申し込みください。'],
+          ['Pro ライセンスは複数の Mac で使えますか？',
+           '1つの Pro ライセンスで 2台の Mac まで認証できます。Mac を買い替えた場合は、古い Mac で設定の「ライセンス」タブから認証を解除すれば、新しい Mac で認証できます。'],
+          ['Zoom や Google Meet、Teams の相手の声も録音できますか？',
+           'はい。macOS のシステム音声を直接取り込むため、BlackHole などの仮想オーディオドライバを入れずに相手の声を録音できます。初回の録音時に「システムオーディオ録音」の許可を求められます。'],
+          ['日本語以外の会議にも対応していますか？',
+           '日本語・英語・中国語・韓国語・スペイン語・フランス語・ドイツ語など 13言語と自動判定から、会議ごとに言語を選べます。要約と章立てはその言語で書かれます。'],
+          ['Pro を解約するとどうなりますか？',
+           '支払い済みの期間が終わるまでは Pro のまま使えます。その後は無料版に戻りますが、録音済みの会議はすべて残り、閲覧や書き出しもできます。ただし無料版の制限がかかるため、保存済みの会議が 2件以上あると新しい会議は作れず (削除して 1件以下にすれば作れます)、録音は 1回 15分までになります。'],
+          ['解約はどこからできますか？',
+           '購入時に Lemon Squeezy から届くメールのリンク、または Lemon Squeezy のカスタマーポータルから、いつでも解約できます。'],
+          ['無料版から Pro にアップグレードすると、データは引き継がれますか？',
+           'はい。同じアプリにライセンスキーを入力するだけで Pro になります。録音済みの会議はそのまま使えます。'],
+        ],
+
+        'cta.title': '会議の記録を、Mac の中に。',
+        'cta.subtitle': '数分でセットアップ完了。今日の会議から使えます。',
+
+        'footer.rights': 'All rights reserved.',
+        'footer.privacy': 'プライバシーポリシー',
+        'footer.terms': '利用規約',
+        'footer.support': 'サポート',
+      },
+
+      en: {
+        'meta.title': 'MinuteAI — 100% On-Device & Private AI Meeting Assistant for Mac',
+        'meta.description': 'MinuteAI transcribes and summarizes your meetings entirely on your Mac with Whisper and MLX. Nothing is ever sent to the cloud.',
+
+        'nav.features': 'Features',
+        'nav.pricing': 'Pricing',
+        'nav.faq': 'FAQ',
+        'nav.cta': 'Free Download',
+
+        'hero.badge': 'Native on Apple Silicon · Whisper + MLX',
+        'hero.iconAlt': 'MinuteAI app icon',
+        'video.label': 'MinuteAI transcribing and summarizing a meeting',
+        'video.soon': 'Demo video coming soon',
+        'hero.title': '100% On-Device &amp; Private<br class="hidden sm:block"> <span class="text-accent">AI Meeting Assistant for Mac</span>',
+        'hero.subtitle': '<strong class="font-medium text-zinc-200">Zero cloud uploads.</strong> Record the other side of your calls without virtual audio drivers. Whisper transcription and MLX summaries run entirely on your Mac.',
+        'hero.ctaPrimary': 'Download MinuteAI for Free (.dmg)',
+        'hero.ctaSecondary': 'Get Pro',
+        'hero.requirements': 'macOS 15+ · Apple Silicon (M1 or later) · No credit card required',
+
+
+        'trust.offline': 'Works offline after model download',
+        'trust.noAccount': 'No account required',
+        'trust.languages': '13 languages',
+        'trust.silicon': 'Optimized for Apple Silicon',
+
+        'features.eyebrow': 'Why MinuteAI',
+        'features.title': 'The more confidential the meeting,<br class="hidden sm:block"> the more it belongs on-device.',
+        'features.subtitle': 'Audio, transcripts and summaries never leave your Mac.',
+        'f1.title': '100% On-Device & Zero Leak Risk',
+        'f2.title': 'No Virtual Audio Drivers',
+        'f3.title': 'Real-time Term Correction & Local MLX',
+        'f1.desc': 'Nothing is ever sent to the cloud. Audio, transcripts, notes and summaries stay on your Mac — built for law and accounting firms, board meetings, healthcare and every conversation that must stay private.',
+        'f1.b1': 'No uploads to any server',
+        'f1.b2': 'No account or sign-in',
+        'f2.desc': 'Skip the BlackHole setup. MinuteAI captures system audio directly with macOS process taps, and our built-in SpeexDSP echo cancellation removes speaker bleed — so both sides of the call come through clearly.',
+        'f2.b1': 'Captures any audio your Mac plays — Zoom, Meet, Teams and more',
+        'f2.b2': 'Records mic and system audio together',
+        'f3.desc': 'Fix a misheard term once and the correction ripples through the entire transcript — past and future lines alike. Summaries are generated by a fast local LLM on MLX, tuned for Apple Silicon.',
+        'f3.b1': 'Summaries that weigh your markers and notes',
+        'f3.b2': 'Automatic chapters',
+
+        'demo.eyebrow': 'Term correction',
+        'demo.title': 'Fix a misheard word once. It is fixed everywhere.',
+        'demo.desc': 'Words from the transcript are collected in a word list beside it. Correct a misheard word there once, and every occurrence in the transcript is rewritten — new lines use the correction too.',
+        'demo.step1': 'Correct it in the word list',
+        'demo.step2': 'Every occurrence in the transcript is rewritten',
+        'demo.step3': 'New lines use the correction too',
+        'demo.wrong': 'Minuet',
+        'demo.l1': 'The next release improves <del class="t-old">Minuet</del> <mark class="t-new">MinuteAI</mark> summaries',
+        'demo.l2': '<del class="t-old">Minuet</del> <mark class="t-new">MinuteAI</mark> works completely offline',
+        'demo.l3': "Let's settle <mark class=\"t-new\">MinuteAI</mark> pricing next week",
+
+        'pricing.eyebrow': 'Pricing',
+        'pricing.title': 'Simple, transparent pricing.',
+        'pricing.subtitle': 'Try every core feature for free. Cancel Pro anytime.',
+        'pricing.footnote': 'Prices in US dollars. Payments are processed securely by Lemon Squeezy; tax may be added depending on your region. Your recorded meetings stay with you even if you cancel.',
+        'billing.label': 'Billing period',
+        'billing.monthly': 'Monthly',
+        'billing.yearly': 'Yearly',
+        'billing.save': 'Save {saving}%',
+        'free.tagline': 'For trying it out',
+        'free.price': '$0',
+        'free.priceNote': 'Free forever',
+        'free.f1': 'Up to 15 minutes per recording',
+        'free.f2': 'Keep up to 2 meetings',
+        'free.f3': 'All core features (transcription, summaries, term correction)',
+        'free.f4': 'Echo cancellation included',
+        'free.cta': 'Download for Free',
+        'pro.badge': 'Recommended',
+        'pro.tagline': 'For every meeting, without limits',
+        'pro.unit.monthly': '/ month',
+        'pro.unit.yearly': '/ year',
+        'pro.note.monthly': 'Renews monthly · Cancel anytime',
+        'pro.note.yearly': '{perMonth} per month · Renews yearly · Cancel anytime',
+        'pro.f1': 'Unlimited recording time',
+        'pro.f2': 'Unlimited saved meetings',
+        'pro.f3': 'Activate on up to 2 Macs',
+        'pro.f4': 'All updates included',
+        'pro.f5': 'Everything in Free',
+        'pro.cta': 'Start Pro',
+        'notice.title': 'Before you buy',
+        'notice.accuracy': "Transcription and summary quality depends on the AI model you choose, your Mac's performance and your recording conditions (microphone, how people speak, and so on).",
+        'notice.tryFree': 'Please try the free version first to make sure MinuteAI works well on your Mac and in your meetings before subscribing to Pro.',
+
+        'faq.title': 'Frequently asked questions',
+        'faq.items': [
+          ['Does it work without an internet connection?',
+           'Yes. Once you have downloaded the transcription and summary models, recording, transcription and summaries all run offline. The app only goes online to list and download models, to activate, check or deactivate a Pro license, and when you choose to look up a word on Google — your meeting audio and transcripts are never sent.'],
+          ['Is my meeting audio or transcript ever sent anywhere?',
+           'No. Audio, transcripts, notes and summaries are stored on your Mac and are never uploaded — not even to our servers.'],
+          ['What are the system requirements?',
+           'A Mac with Apple Silicon (M1–M4 series or later) running macOS 15 or later. Intel Macs are not supported. 16 GB of memory is recommended (choose a lighter model on 8 GB Macs), plus about 3–6 GB of free disk space for models.'],
+          ['How accurate are transcripts and summaries?',
+           "It depends on the AI model you choose, your Mac's performance and your recording conditions (microphone quality, how fast and loudly people speak, background noise and so on). In Settings you can choose between lighter models and more accurate ones; a Mac with 16 GB of memory or more is recommended for the more accurate models. Names and jargon are easy to mishear, so fix them in the word list and the correction applies to the whole transcript."],
+          ['Can I try it before subscribing to Pro?',
+           'Yes. The free version includes every feature — transcription, summaries, word correction, echo cancellation and more — with recordings of up to 15 minutes and up to 2 saved meetings. Please try it first to make sure MinuteAI works well on your Mac and in your meetings before subscribing to Pro.'],
+          ['Can I use one Pro license on multiple Macs?',
+           'Each license can be activated on up to 2 Macs. When you replace a Mac, deactivate the license in Settings on the old Mac, then activate it on the new one.'],
+          ['Can it record the other people on Zoom, Google Meet or Teams?',
+           'Yes. MinuteAI captures macOS system audio directly, so you can record the other side of the call without installing virtual audio drivers like BlackHole. macOS asks for System Audio Recording permission the first time you record.'],
+          ['Does it support languages other than English?',
+           'Choose from 13 languages — including English, Japanese, Chinese, Korean, Spanish, French and German — or auto-detect, per meeting. Summaries and chapters are written in that language.'],
+          ['What happens if I cancel Pro?',
+           'You keep Pro until the end of the period you paid for. After that the app returns to the free plan: all your recorded meetings stay, and you can still open and export them. The free-plan limits apply, though: you cannot create a new meeting while 2 or more are saved (delete down to 1 to create one), and recordings stop at 15 minutes.'],
+          ['How do I cancel?',
+           'Anytime, from the link in your Lemon Squeezy purchase email or from the Lemon Squeezy customer portal.'],
+          ['Do I keep my data when upgrading from Free to Pro?',
+           'Yes. Just enter your license key in the same app to unlock Pro. Your recorded meetings stay right where they are.'],
+        ],
+
+        'cta.title': 'Keep your meeting notes on your Mac.',
+        'cta.subtitle': 'Set up in minutes. Use it in your next meeting.',
+
+        'footer.rights': 'All rights reserved.',
+        'footer.privacy': 'Privacy Policy',
+        'footer.terms': 'Terms of Service',
+        'footer.support': 'Support',
+      },
+    };
+
+    // ---------------------------------------------------------------
+    // Language switching (no reload)
+    // ---------------------------------------------------------------
+    const STORAGE_KEY = 'minuteai.lang';
+    let currentLang = 'ja';
+
+    function detectLang() {
+      const fromQuery = new URLSearchParams(location.search).get('lang');
+      if (fromQuery && I18N[fromQuery]) return fromQuery;
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && I18N[saved]) return saved;
+      } catch (_) {}
+      return (navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+    }
+
+    function applyLang(lang, { persist = true } = {}) {
+      const t = I18N[lang];
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.title = t['meta.title'];
+      document.querySelector('meta[name="description"]').setAttribute('content', t['meta.description']);
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const value = t[el.dataset.i18n];
+        if (value !== undefined) el.textContent = value;
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const value = t[el.dataset.i18nAria];
+        if (value !== undefined) el.setAttribute('aria-label', value);
+      });
+      document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+        const value = t[el.dataset.i18nAlt];
+        if (value !== undefined) el.alt = value;
+      });
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const value = t[el.dataset.i18nHtml];
+        if (value !== undefined) el.innerHTML = value;
+      });
+
+      document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+        const active = btn.dataset.langBtn === lang;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.classList.toggle('bg-white/10', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('text-zinc-500', !active);
+      });
+
+      renderFaq(t['faq.items']);
+      renderPricing();
+      loadDemoVideo(lang);
+      if (persist) {
+        try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {}
+      }
+    }
+
+    let pendingLang = null;
+    let switchTimer = null;
+
+    function switchLang(lang) {
+      if (lang === (pendingLang ?? currentLang)) return;
+      pendingLang = lang;
+      clearTimeout(switchTimer);
+      document.body.classList.add('lang-switching');
+      switchTimer = setTimeout(() => {
+        pendingLang = null;
+        applyLang(lang);
+        requestAnimationFrame(() => document.body.classList.remove('lang-switching'));
+      }, 160);
+    }
+
+    document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+      btn.addEventListener('click', () => switchLang(btn.dataset.langBtn));
+    });
+
+    // ---------------------------------------------------------------
+    // FAQ accordion
+    // ---------------------------------------------------------------
+    const openFaq = new Set([0]);
+
+    function renderFaq(items) {
+      const list = document.getElementById('faqList');
+      list.innerHTML = '';
+      items.forEach(([q, a], i) => {
+        const item = document.createElement('div');
+        item.className = 'faq-item' + (openFaq.has(i) ? ' open' : '');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'flex w-full items-center justify-between gap-6 px-6 py-5 text-left text-[15px] font-medium text-zinc-100 hover:text-white';
+        button.setAttribute('aria-expanded', String(openFaq.has(i)));
+        button.setAttribute('aria-controls', 'faq-panel-' + i);
+        button.id = 'faq-button-' + i;
+        const label = document.createElement('span');
+        label.textContent = q;
+        button.append(label);
+        button.insertAdjacentHTML('beforeend',
+          '<span class="faq-chevron flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 text-zinc-400">' +
+          '<svg class="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg></span>');
+
+        const body = document.createElement('div');
+        body.className = 'faq-body';
+        body.id = 'faq-panel-' + i;
+        body.setAttribute('role', 'region');
+        body.setAttribute('aria-labelledby', button.id);
+        const inner = document.createElement('div');
+        inner.className = 'overflow-hidden';
+        const p = document.createElement('p');
+        p.className = 'px-6 pb-5 text-sm leading-relaxed text-zinc-400';
+        p.textContent = a;
+        inner.append(p);
+        body.append(inner);
+
+        button.addEventListener('click', () => {
+          const open = item.classList.toggle('open');
+          button.setAttribute('aria-expanded', String(open));
+          open ? openFaq.add(i) : openFaq.delete(i);
+        });
+
+        item.append(button, body);
+        list.append(item);
+      });
+    }
+
+    // ---------------------------------------------------------------
+    // Pricing: monthly / yearly
+    // ---------------------------------------------------------------
+    let billing = 'yearly';
+
+    function renderPricing() {
+      const t = I18N[currentLang];
+      document.querySelector('[data-billing-save]').textContent = t['billing.save'].replace('{saving}', PRICE.yearlySaving);
+      document.querySelector('[data-pro-price]').textContent = PRICE[billing];
+      document.querySelector('[data-pro-unit]').textContent = t['pro.unit.' + billing];
+      document.querySelector('[data-pro-note]').textContent = t['pro.note.' + billing].replace('{perMonth}', PRICE.yearlyPerMonth);
+      document.querySelectorAll('[data-purchase]').forEach(a => {
+        a.href = billing === 'yearly' ? LINKS.purchaseYearly : LINKS.purchaseMonthly;
+      });
+      document.querySelectorAll('[data-billing-btn]').forEach(btn => {
+        const active = btn.dataset.billingBtn === billing;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.classList.toggle('bg-white/10', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('text-zinc-400', !active);
+      });
+    }
+
+    document.querySelectorAll('[data-billing-btn]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        billing = btn.dataset.billingBtn;
+        renderPricing();
+      });
+    });
+
+    // ---------------------------------------------------------------
+    // Hero video: the language's recording, else the shared one, else a placeholder
+    // ---------------------------------------------------------------
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const demoVideo = document.getElementById('demoVideo');
+    const demoFallback = document.getElementById('demoFallback');
+    let videoQueue = [];
+    let videoLang = null;
+    const failedVideos = new Set();
+
+    // Autoplay muted and looping like a product shot; with reduced motion, let the visitor press play.
+    demoVideo.autoplay = !reduceMotion;
+    demoVideo.controls = reduceMotion;
+
+    function loadDemoVideo(lang) {
+      if (lang === videoLang) return;
+      videoLang = lang;
+      videoQueue = DEMO_VIDEOS[lang].filter(src => !failedVideos.has(src));
+      playNextVideo();
+    }
+
+    function playNextVideo() {
+      const src = videoQueue.shift();
+      const missing = !src;
+      demoVideo.classList.toggle('hidden', missing);
+      demoFallback.classList.toggle('hidden', !missing);
+      demoFallback.classList.toggle('flex', missing);
+      if (missing) return;
+      if (demoVideo.getAttribute('src') === src) return;
+      demoVideo.src = src;
+      if (!reduceMotion) demoVideo.play().catch(() => { demoVideo.controls = true; });
+    }
+
+    demoVideo.addEventListener('error', () => {
+      failedVideos.add(demoVideo.getAttribute('src'));
+      playNextVideo();
+    });
+
+    // ---------------------------------------------------------------
+    // Links, navbar, scroll reveal
+    // ---------------------------------------------------------------
+    document.querySelectorAll('[data-download]').forEach(a => a.href = LINKS.download);
+    document.querySelectorAll('[data-link]').forEach(a => a.href = LINKS[a.dataset.link]);
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const navInner = document.getElementById('navInner');
+    const onScroll = () => {
+      const scrolled = window.scrollY > 12;
+      navInner.classList.toggle('glass', scrolled);
+      navInner.classList.toggle('shadow-[0_8px_32px_-12px_rgba(0,0,0,.6)]', scrolled);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    applyLang(detectLang(), { persist: false });
+    if (window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>

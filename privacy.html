@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー — MinuteAI</title>
+  <meta name="theme-color" content="#07070b">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icon_32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/icon_64.png">
+  <link rel="apple-touch-icon" href="assets/icon_256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', '"Hiragino Sans"', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
+      } } },
+    };
+  </script>
+  <style>
+    :root { color-scheme: dark; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { background: #07070b; }
+    ::selection { background: rgba(129, 140, 248, .35); color: #fff; }
+    .glow { position: absolute; border-radius: 9999px; filter: blur(110px); pointer-events: none; }
+    .text-gradient {
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,.72) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+    }
+    a:focus-visible, button:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+
+    /* Only the selected language's text is shown */
+    html[lang="ja"] [lang="en"]:not(html), html[lang="en"] [lang="ja"]:not(html) { display: none; }
+
+    /* Legal text */
+    .legal { color: #a1a1aa; font-size: 15px; line-height: 1.85; }
+    .legal h2 { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.06); color: #fff; font-size: 1.125rem; font-weight: 600; letter-spacing: -.01em; }
+    .legal h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+    .legal h3 { margin-top: 1.25rem; color: #e4e4e7; font-weight: 600; }
+    .legal p { margin-top: .75rem; }
+    .legal ul, .legal ol { margin-top: .75rem; padding-left: 1.4rem; }
+    .legal ul { list-style: disc; }
+    .legal ol { list-style: decimal; }
+    .legal li { margin-top: .4rem; }
+    .legal li::marker { color: #6366f1; }
+    .legal strong { color: #e4e4e7; font-weight: 600; }
+    .legal a { color: #a5b4fc; text-decoration: underline; text-underline-offset: 3px; }
+    .legal a:hover { color: #c7d2fe; }
+    .legal code { border-radius: 6px; background: rgba(255,255,255,.06); padding: 1px 6px; font-size: .85em; color: #d4d4d8; }
+  </style>
+</head>
+
+<body class="font-sans text-zinc-300 antialiased overflow-x-hidden">
+  <header class="sticky top-0 z-50">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <nav class="mt-3 flex h-14 items-center justify-between rounded-2xl glass px-3 sm:px-4">
+        <a href="index.html" class="flex items-center gap-2.5">
+          <img src="assets/icon_64.png" alt="" width="28" height="28" class="h-7 w-7">
+          <span class="text-[15px] font-semibold tracking-tight text-white">MinuteAI</span>
+        </a>
+        <div class="flex items-center gap-1.5 sm:gap-3">
+          <a href="index.html" class="hidden sm:inline-block rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors"><span lang="ja">ホームに戻る</span><span lang="en">Back to home</span></a>
+          <div class="flex items-center rounded-full border border-white/10 bg-white/[.03] p-0.5 text-xs" role="group" aria-label="言語 / Language">
+            <button type="button" data-lang-btn="ja" aria-label="日本語" class="rounded-full px-2.5 py-1 transition-colors"><span aria-hidden="true">🇯🇵</span><span class="hidden sm:inline ml-1">日本語</span></button>
+            <button type="button" data-lang-btn="en" aria-label="English" class="rounded-full px-2.5 py-1 transition-colors"><span aria-hidden="true">🇺🇸</span><span class="hidden sm:inline ml-1">English</span></button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="relative">
+    <div class="glow w-[640px] h-[360px] -top-24 left-1/2 -translate-x-1/2 bg-indigo-600/25"></div>
+    <div class="relative mx-auto max-w-3xl px-4 sm:px-6 pt-16 sm:pt-24 pb-24">
+      <p class="text-xs font-semibold uppercase tracking-[.2em] text-indigo-300">Legal</p>
+      <h1 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient"><span lang="ja">プライバシーポリシー</span><span lang="en">Privacy Policy</span></h1>
+      <p class="mt-4 text-sm text-zinc-400"><span lang="ja">制定日: 2026年10月28日</span><span lang="en">Effective date: October 28, 2026</span></p>
+
+      <article class="legal mt-10 rounded-3xl glass p-6 sm:p-10">
+        <div lang="ja">
+          <p>Shumity Lab（以下「当方」）は、macOS 用アプリ「MinuteAI」（以下「本アプリ」）および本アプリの公式ウェブサイト（以下「本サイト」）における利用者の情報の取り扱いについて、以下のとおりプライバシーポリシーを定めます。</p>
+
+          <h2>1. 基本方針</h2>
+          <p>本アプリは、会議の音声・文字起こし・メモ・要約を利用者の Mac の中だけで処理・保存するように設計されています。当方がこれらの会議データを受け取ったり、閲覧したりすることはありません。</p>
+
+          <h2>2. 本アプリが Mac 内に保存する情報</h2>
+          <p>本アプリで扱う次の情報は、利用者の Mac 内にのみ保存され、当方を含む外部に送信されません。</p>
+          <ul>
+            <li>録音した音声、文字起こし、メモ、マーカー、章立て、要約、メモに貼り付けた画像や画面の撮影、ダウンロードした AI モデル（<code>~/Library/Application Support/MinuteAI/</code>）</li>
+            <li>音声認識モデルの辞書ファイル（トークナイザ）（<code>~/Documents/huggingface/</code>）</li>
+            <li>本アプリの設定（macOS の環境設定）</li>
+            <li>Pro ライセンスの情報（ライセンスキー、Lemon Squeezy が発行する識別子、Mac のハードウェア UUID、有効期限などの日時）（macOS のキーチェーン）</li>
+          </ul>
+          <p>文字起こしと要約は、Mac 上で動作する AI モデルで行われます。これらの情報の管理（バックアップや削除を含みます）は利用者ご自身で行ってください。会議のデータは、本アプリで会議を削除するか、上記のフォルダを削除すると消去されます。</p>
+
+          <h2>3. 本アプリがインターネットに接続する場合</h2>
+          <p>本アプリは、次の場合に限り外部のサービスと通信します。いずれの場合も、会議の音声・文字起こし・メモ・要約は送信されません。</p>
+          <h3>（1） AI モデルの一覧取得とダウンロード（Hugging Face）</h3>
+          <p>利用者が設定画面でモデルを探したりダウンロードしたりするとき、および音声認識モデルを初めて読み込むとき（辞書ファイルの取得のため）に、Hugging Face, Inc. のサーバーに接続します。その際、IP アドレスなどの通信に必要な情報が Hugging Face に送られます。Hugging Face における情報の取り扱いは、同社の<a href="https://huggingface.co/privacy" target="_blank" rel="noopener">プライバシーポリシー</a>に従います。</p>
+          <h3>（2） Pro ライセンスの認証・状態確認・解除（Lemon Squeezy）</h3>
+          <p>Pro ライセンスの認証、状態の確認、認証の解除のときに、Lemon Squeezy のライセンス API に接続し、次の情報を送信します。</p>
+          <ul>
+            <li>ライセンスキー（毎回）</li>
+            <li>Mac のコンピュータ名（「システム設定」で設定されている名前。認証のときのみ。どの Mac で認証したかを利用者が見分けるために使われます）</li>
+            <li>認証時に Lemon Squeezy が発行する識別子（インスタンス ID）（状態の確認と解除のとき）</li>
+          </ul>
+          <p>本アプリは、ライセンスを別の Mac にコピーして使われないよう、Mac のハードウェア UUID を確認に使いますが、この値は Mac 内でのみ使用し、外部に送信しません。有効期限のあるライセンス（サブスクリプション）では、有効期限の3日前から期限後30日までの間、インターネットに接続しているときに自動で状態を確認します（期限の前後3日は1時間ごと、その後は12時間ごと）。</p>
+          <h3>（3） 単語の Google 検索（利用者の操作時のみ）</h3>
+          <p>単語一覧で「Google で検索」を選んだときに限り、選んだ単語（「とは」などの語を付けたもの）を検索語として、ウェブブラウザで Google 検索を開きます。検索語は、ブラウザを通じて Google LLC に送られます（その際、ブラウザの通常の通信と同じく IP アドレスなども送られます）。取り扱いは同社の<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">プライバシーポリシー</a>に従います。</p>
+
+          <h3>（4） アップデートの確認とダウンロード（GitHub）</h3>
+          <p>新しいバージョンの一覧を、自動確認をオンにしている場合は1日1回（録音中を除く）、または利用者が確認を選んだときに取得します。アップデートをインストールするときは、配布ファイルをダウンロードします。接続先は GitHub, Inc. のサーバーで、IP アドレスなどの通信に必要な情報が同社に送られます。取り扱いは同社の<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">プライバシーステートメント</a>に従います。本アプリが Mac の情報や利用状況を送ることはありません。自動確認は、設定の「一般」タブでオフにできます。</p>
+
+          <h2>4. 購入時に取得する情報</h2>
+          <p>Pro プランの販売と決済は、Lemon Squeezy（Lemon Squeezy, LLC）が販売事業者（Merchant of Record）として行います。カード番号などの決済情報は Lemon Squeezy が取り扱い、当方は受け取りません。</p>
+          <p>購入時の情報は Lemon Squeezy が取得します。当方は、ライセンスの提供とサポートのために、Lemon Squeezy の管理画面を通じて次の情報を閲覧・利用することがあります。</p>
+          <ul>
+            <li>氏名、メールアドレス、国・地域</li>
+            <li>注文内容、購入日、サブスクリプションの状態、ライセンスキーと認証済みの Mac の台数・コンピュータ名</li>
+          </ul>
+          <p>Lemon Squeezy における情報の取り扱いは、同社の<a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">プライバシーポリシー</a>に従います。</p>
+
+          <h2>5. 本サイトについて</h2>
+          <ul>
+            <li>本サイトは GitHub Pages（GitHub, Inc.）で公開されています。GitHub は、セキュリティなどの目的で訪問者の IP アドレスなどを記録することがあります。</li>
+            <li>本サイトは、表示のために Google Fonts、Tailwind CSS、unpkg（Lucide アイコン）などの外部サービスからファイルを読み込みます。その際、訪問者の IP アドレスやブラウザの情報がこれらのサービスに送られます。</li>
+            <li>本サイトは、選択した表示言語をブラウザのローカルストレージに保存します。アクセス解析や広告のための Cookie やトラッキングは使用していません。</li>
+          </ul>
+
+          <h2>6. 利用目的</h2>
+          <p>当方は、取得した情報を次の目的にのみ利用します。</p>
+          <ul>
+            <li>ライセンスの発行、認証、管理</li>
+            <li>お問い合わせへの対応とサポート</li>
+            <li>重要なお知らせ（サブスクリプションや本アプリに関する重要な変更など）のご連絡</li>
+            <li>不正利用の防止と、法令に基づく対応</li>
+          </ul>
+          <p>お問い合わせのメールは、対応に必要な期間保管し、その後は削除します。購入に関する情報は、Lemon Squeezy の定める期間、同社のシステムに保管されます。</p>
+
+          <h2>7. 第三者への提供</h2>
+          <p>当方は、次の場合を除き、利用者の個人情報を第三者に提供しません。</p>
+          <ul>
+            <li>利用者の同意がある場合</li>
+            <li>法令に基づく場合</li>
+            <li>人の生命、身体または財産の保護のために必要で、利用者の同意を得ることが困難な場合</li>
+          </ul>
+          <h3>外国にある第三者への提供・委託</h3>
+          <p>当方は、次の外国にある事業者に個人情報の取り扱いを委託しています。いずれも、個人情報保護法に基づく個人情報保護委員会規則で定める基準に適合する体制を整備している事業者として、委託しています。</p>
+          <ul>
+            <li>Lemon Squeezy, LLC（米国）: Pro プランの販売・決済、ライセンスの発行と管理</li>
+            <li>Google LLC（米国）: お問い合わせのメール（Gmail）の送受信と保管</li>
+          </ul>
+          <p>米国には、EU の一般データ保護規則（GDPR）のような包括的な連邦の個人情報保護法はなく、州ごとの法律や分野ごとの法律があります。各事業者の取り扱いは、それぞれのプライバシーポリシーをご確認ください。当方は、委託先の安全管理を確認するために必要な措置を講じ、ご請求に応じて、その内容をお知らせします。</p>
+
+          <h2>8. 安全管理措置</h2>
+          <p>当方は、取得した個人情報の漏えい、滅失またはき損を防ぐため、次の措置を講じます。</p>
+          <ul>
+            <li>組織的措置: 個人情報を取り扱う者を運営者に限り、取り扱いの手順を定めています。</li>
+            <li>人的措置: 運営者は、個人情報の取り扱いについての注意事項を確認しています。</li>
+            <li>物理的措置: 個人情報を取り扱う機器を、第三者が触れられない場所で管理しています。</li>
+            <li>技術的措置: 各サービスのアカウントに強固なパスワードと二要素認証を設定し、機器のディスクを暗号化しています。</li>
+            <li>外的環境の把握: 個人情報を取り扱う外国の事業者がある米国の制度を把握したうえで、委託しています（第7条）。</li>
+          </ul>
+
+          <h2>9. 開示・訂正・削除などのご請求</h2>
+          <p>当方が保有する利用者の個人情報について、利用目的の通知、開示、訂正、追加、削除、利用停止、第三者提供の停止などをご希望の場合は、件名を「個人情報に関する請求」として、下記のお問い合わせ先までメールでご連絡ください。購入時のメールアドレスから送信いただくなどの方法でご本人であることを確認したうえで、法令に従い、遅滞なく対応します。手数料はいただきません。なお、Mac 内に保存された会議データは当方が保有していないため、利用者ご自身で削除してください。</p>
+
+          <h2>10. 本ポリシーの変更</h2>
+          <p>当方は、法令の変更や本アプリの機能の変更などに応じて、本ポリシーを変更することがあります。変更後のポリシーは、本サイトに掲載した時点から効力を生じます。</p>
+
+          <h2>11. 運営者とお問い合わせ</h2>
+          <p>運営者: Shumity Lab<br>住所および代表者の氏名: ご請求があれば遅滞なくお知らせします。<br>メール: <a href="mailto:shumity.lab@gmail.com">shumity.lab@gmail.com</a></p>
+        </div>
+        <div lang="en">
+          <p class="!mt-0 mb-8 rounded-xl border border-white/[.08] bg-white/[.03] px-4 py-3 text-sm">This is an English translation. If there is any difference between the Japanese and English versions, the Japanese version prevails.</p>
+          <p>This Privacy Policy explains how Shumity Lab ("we", "us") handles information in connection with the macOS app MinuteAI (the "App") and its official website (the "Site").</p>
+
+          <h2>1. Our approach</h2>
+          <p>The App is designed to process and store your meeting audio, transcripts, notes and summaries only on your Mac. We never receive or see this meeting data.</p>
+
+          <h2>2. Information the App stores on your Mac</h2>
+          <p>The following information handled by the App is stored only on your Mac and is never sent to us or anyone else:</p>
+          <ul>
+            <li>Recorded audio, transcripts, notes, markers, chapters, summaries, images and screen captures attached to notes, and downloaded AI models (<code>~/Library/Application Support/MinuteAI/</code>)</li>
+            <li>The vocabulary files (tokenizer) of the speech recognition model (<code>~/Documents/huggingface/</code>)</li>
+            <li>Your App settings (macOS preferences)</li>
+            <li>Pro license information — license key, the identifier issued by Lemon Squeezy, your Mac's hardware UUID and dates such as the expiry (macOS Keychain)</li>
+          </ul>
+          <p>Transcription and summarization are performed by AI models running on your Mac. You are responsible for managing this information, including backups and deletion. Meeting data is erased when you delete a meeting in the App or delete the folders above.</p>
+
+          <h2>3. When the App connects to the internet</h2>
+          <p>The App communicates with outside services only in the cases below. In none of them is meeting audio, a transcript, a note or a summary sent.</p>
+          <h3>(1) Listing and downloading AI models (Hugging Face)</h3>
+          <p>When you browse or download models in Settings, and the first time a speech recognition model is loaded (to fetch its vocabulary files), the App connects to the servers of Hugging Face, Inc., which receive information needed for the connection, such as your IP address. Hugging Face handles this information under its <a href="https://huggingface.co/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+          <h3>(2) Activating, checking and deactivating a Pro license (Lemon Squeezy)</h3>
+          <p>When you activate a Pro license, when its status is checked, and when you deactivate it, the App connects to the Lemon Squeezy license API and sends:</p>
+          <ul>
+            <li>Your license key (every time)</li>
+            <li>Your Mac's computer name as set in System Settings (on activation only), so you can tell which Mac is activated</li>
+            <li>The identifier (instance ID) Lemon Squeezy issues on activation (when checking and deactivating)</li>
+          </ul>
+          <p>To keep a license from being copied to another Mac, the App checks your Mac's hardware UUID; this value is used only on your Mac and is never sent. For licenses with an expiry date (subscriptions), the App checks the status automatically while you are online, from 3 days before the expiry until 30 days after it (hourly within 3 days of the expiry, every 12 hours after that).</p>
+          <h3>(3) Searching a word on Google (only when you choose to)</h3>
+          <p>Only when you choose "Search on Google" in the word list does the App open a Google search in your web browser, using the selected word (with a phrase such as "what is") as the query. The query is sent to Google LLC through your browser, along with the information any browser request includes, such as your IP address. Google handles it under its <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+
+          <h3>(4) Checking for and downloading updates (GitHub)</h3>
+          <p>The App fetches the list of new versions once a day if automatic checks are on (except while recording), or when you choose to check. When you install an update, it downloads the release file. It connects to servers of GitHub, Inc., and information needed for communication, such as your IP address, is sent to GitHub. GitHub handles it under its <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">privacy statement</a>. The App does not send information about your Mac or how you use the App. You can turn automatic checks off in the General tab of the settings.</p>
+
+          <h2>4. Information collected when you purchase</h2>
+          <p>Sales and payments for the Pro plan are handled by Lemon Squeezy (Lemon Squeezy, LLC) as the Merchant of Record. Lemon Squeezy handles your payment details, such as card numbers; we never receive them.</p>
+          <p>Purchase information is collected by Lemon Squeezy. To provide your license and support, we may view and use the following through the Lemon Squeezy dashboard:</p>
+          <ul>
+            <li>Your name, email address and country or region</li>
+            <li>Order details, purchase date, subscription status, license key and the number and computer names of activated Macs</li>
+          </ul>
+          <p>Lemon Squeezy handles information under its <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+
+          <h2>5. About the Site</h2>
+          <ul>
+            <li>The Site is hosted on GitHub Pages (GitHub, Inc.). GitHub may log visitors' IP addresses for security and other purposes.</li>
+            <li>To display the Site, files are loaded from outside services such as Google Fonts, Tailwind CSS and unpkg (Lucide icons), which receive your IP address and browser information.</li>
+            <li>The Site stores your chosen display language in your browser's local storage. We do not use cookies or tracking for analytics or advertising.</li>
+          </ul>
+
+          <h2>6. How we use information</h2>
+          <p>We use the information we collect only to:</p>
+          <ul>
+            <li>Issue, activate and manage licenses</li>
+            <li>Respond to inquiries and provide support</li>
+            <li>Send important notices, such as significant changes to your subscription or the App</li>
+            <li>Prevent misuse and comply with the law</li>
+          </ul>
+          <p>We keep support emails for as long as needed to handle them, then delete them. Purchase information is kept in Lemon Squeezy's systems for the period Lemon Squeezy sets.</p>
+
+          <h2>7. Sharing with third parties</h2>
+          <p>We do not share your personal information with third parties except:</p>
+          <ul>
+            <li>With your consent</li>
+            <li>When required by law</li>
+            <li>When necessary to protect someone's life, body or property and it is difficult to obtain your consent</li>
+          </ul>
+          <h3>Providers outside Japan</h3>
+          <p>We entrust the handling of personal information to the following providers outside Japan. Each has systems that meet the standards set by the rules of the Personal Information Protection Commission under Japan's Act on the Protection of Personal Information.</p>
+          <ul>
+            <li>Lemon Squeezy, LLC (United States): Pro plan sales and payments, and issuing and managing licenses</li>
+            <li>Google LLC (United States): sending, receiving and storing support email (Gmail)</li>
+          </ul>
+          <p>The United States has no comprehensive federal privacy law like the EU's General Data Protection Regulation (GDPR); privacy is governed by state laws and sector-specific laws. Please see each provider's privacy policy for how it handles information. We take the steps needed to confirm these providers' security and will tell you about them on request.</p>
+
+          <h2>8. Security measures</h2>
+          <p>To prevent the leakage, loss or damage of personal information we hold, we take the following measures:</p>
+          <ul>
+            <li>Organizational: only the operator handles personal information, following set procedures.</li>
+            <li>Personnel: the operator has reviewed the precautions for handling personal information.</li>
+            <li>Physical: devices that handle personal information are kept where others cannot access them.</li>
+            <li>Technical: service accounts use strong passwords and two-factor authentication, and device disks are encrypted.</li>
+            <li>Understanding foreign environments: we entrust information to providers in the United States after understanding its legal system (Section 7).</li>
+          </ul>
+
+          <h2>9. Access, correction and deletion</h2>
+          <p>To request notice of the purpose of use, access, correction, addition, deletion, suspension of use or suspension of third-party provision of personal information we hold about you, email us at the address below with the subject "Personal information request". After verifying your identity — for example, by having you write from the email address used for your purchase — we will respond without delay in accordance with applicable law. There is no fee. We do not hold the meeting data stored on your Mac, so please delete it yourself.</p>
+
+          <h2>10. Changes to this policy</h2>
+          <p>We may update this policy in response to changes in law or in the App's features. The updated policy takes effect when it is posted on the Site.</p>
+
+          <h2>11. Operator and contact</h2>
+          <p>Operator: Shumity Lab<br>Address and representative's name: provided without delay on request.<br>Email: <a href="mailto:shumity.lab@gmail.com">shumity.lab@gmail.com</a></p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="border-t border-white/[.06]">
+    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-6 py-10 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/icon_64.png" alt="" width="22" height="22" class="h-[22px] w-[22px] opacity-90">
+        <span class="text-sm text-zinc-400">© <span id="year">2026</span> Shumity Lab. All rights reserved.</span>
+      </div>
+      <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-400">
+        <a href="privacy.html" class="hover:text-zinc-200 transition-colors"><span lang="ja">プライバシーポリシー</span><span lang="en">Privacy Policy</span></a>
+        <a href="terms.html" class="hover:text-zinc-200 transition-colors"><span lang="ja">利用規約</span><span lang="en">Terms of Service</span></a>
+        <a href="mailto:shumity.lab@gmail.com" class="hover:text-zinc-200 transition-colors"><span lang="ja">サポート</span><span lang="en">Support</span></a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // Same storage key as index.html, so the language carries over between pages.
+    const STORAGE_KEY = 'minuteai.lang';
+    const TITLES = { ja: 'プライバシーポリシー — MinuteAI', en: 'Privacy Policy — MinuteAI' };
+
+    function detectLang() {
+      const fromQuery = new URLSearchParams(location.search).get('lang');
+      if (fromQuery === 'ja' || fromQuery === 'en') return fromQuery;
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === 'ja' || saved === 'en') return saved;
+      } catch (_) {}
+      return (navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+    }
+
+    function applyLang(lang, { persist = true } = {}) {
+      document.documentElement.lang = lang;
+      document.title = TITLES[lang];
+      document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+        const active = btn.dataset.langBtn === lang;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.classList.toggle('bg-white/10', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('text-zinc-500', !active);
+      });
+      if (persist) {
+        try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {}
+      }
+    }
+
+    document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+      btn.addEventListener('click', () => applyLang(btn.dataset.langBtn));
+    });
+    document.getElementById('year').textContent = new Date().getFullYear();
+    applyLang(detectLang(), { persist: false });
+  </script>
+</body>
+</html>
