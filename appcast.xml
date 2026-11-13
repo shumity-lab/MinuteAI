@@ -5,6 +5,20 @@
     <link>https://shumity-lab.github.io/MinuteAI/</link>
     <description>MinuteAI updates</description>
     <item>
+      <title>Version 1.1.0</title>
+      <pubDate>Thu, 12 Nov 2026 16:12:15 +0000</pubDate>
+      <sparkle:version>22</sparkle:version>
+      <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <description>&lt;ul&gt;
+  &lt;li&gt;録音した会議を、選んだモデルでもう一度文字起こしできるようになりました。会議全体のほか、Shift キーを押しながらクリックして選んだ行だけでも行えます。元の文字起こしにはいつでも戻せます。/ You can now transcribe a recorded meeting again with the model of your choice, either all of it or only lines you select with Shift-click. The previous transcript can always be restored.&lt;/li&gt;
+  &lt;li&gt;同じ言葉が何度も繰り返される聞き取りの誤りを抑えました。/ Fewer transcripts with the same word repeated over and over.&lt;/li&gt;
+  &lt;li&gt;「章立てを生成」で、同じ見出しが続いたり、細かく分かれすぎたりしないようにしました。/ "Generate Chapters" no longer repeats the same heading or splits the meeting into tiny chapters.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+      <enclosure url="https://github.com/shumity-lab/MinuteAI/releases/download/v1.1.0/MinuteAI-1.1.0.dmg" length="16143677" type="application/octet-stream" sparkle:edSignature="eMADn5oonHoJBw60jqxFOY/mWf3LrCdOjIQDZJj+NV7Qbwu/5rj2d0iHXBztQpWgrYBG6atNq0QIHgpsegerBQ==" />
+    </item>
+    <item>
       <title>Version 1.0.1</title>
       <pubDate>Fri, 30 Oct 2026 14:37:17 +0000</pubDate>
       <sparkle:version>18</sparkle:version>
